@@ -131,7 +131,7 @@ module WebAuthn
         )
       end
 
-      @origin = new_origin
+      @allowed_origins = [new_origin]
     end
   end
 end

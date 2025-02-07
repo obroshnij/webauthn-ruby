@@ -25,9 +25,7 @@ module WebAuthn
     end
 
     def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= relying_party.allowed_origins ||
-                          [relying_party.origin] ||
-                          raise("Unspecified expected origin")
+      expected_origin ||= relying_party.allowed_origins || raise("Unspecified expected origin")
 
       rp_id ||= relying_party.id
 
@@ -121,12 +119,7 @@ module WebAuthn
 
     # Extract RP ID from origin in case rp_id is not provided explicitly
     def rp_id_from_origin(expected_origin)
-      case expected_origin
-      when Array
-        URI.parse(expected_origin.first).host if expected_origin.size == 1
-      when String
-        URI.parse(expected_origin).host
-      end
+      URI.parse(expected_origin.first).host if expected_origin.size == 1
     end
 
     def type

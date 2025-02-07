@@ -104,18 +104,12 @@ For a Rails application this would go in `config/initializers/webauthn.rb`.
 WebAuthn.configure do |config|
   # This value needs to match `window.location.origin` evaluated by
   # the User Agent during registration and authentication ceremonies.
-  config.origin = "https://auth.example.com"
+  # Multiple origins can be used in more complex scenarios (e.g. different subdomains, native client sending android:apk-key-hash:... etc.)
 
-  # For the case when a relying party has multiple origins
-  # (e.g. different subdomains, native client sending android:apk-key-hash:... like origins in clientDataJson, etc...),
-  # you can set the `allowed_origins` instead of a single `origin` above
-  #
-  # config.allowed_origins = [
-  #   "https://auth.example.com",
-  #   "android:apk-key-hash:blablablablablalblalla"
-  # ]
-  #
-  # Note: in this case setting config.rp_id is mandatory
+  config.allowed_origins = [
+    "https://auth.example.com",
+    "android:apk-key-hash:blablablablablalblalla"
+  ]
 
   # Relying Party name for display purposes
   config.rp_name = "Example Inc."
