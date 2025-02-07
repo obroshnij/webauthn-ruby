@@ -93,18 +93,12 @@ module WebAuthn
       OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
 
-    # @return [Boolean]
-    # @param [Array<String>] expected_origin
-    # Validate if one of the allowed origins configured for RP is matching the one received from client
     def valid_origin?(expected_origin)
       return false unless expected_origin
 
       expected_origin.include?(client_data.origin)
     end
 
-    # @return [Boolean]
-    # @param [String] rp_id
-    # Validate if RP ID is matching the one received from client
     def valid_rp_id?(rp_id)
       return false unless rp_id
 
@@ -125,8 +119,6 @@ module WebAuthn
       authenticator_data.user_verified?
     end
 
-    # @return [String, nil]
-    # @param [String, Array, nil] expected_origin
     # Extract RP ID from origin in case rp_id is not provided explicitly
     def rp_id_from_origin(expected_origin)
       case expected_origin
