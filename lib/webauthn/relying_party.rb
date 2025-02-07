@@ -123,15 +123,15 @@ module WebAuthn
 
     # DEPRECATED: This method will be removed in future.
     def origin=(new_origin)
-      unless new_origin.nil?
-        warn(
-          "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future. "\
-          "Please use `WebAuthn.allowed_origins` instead "\
-          "that also allows configuring multiple origins per Relying Party"
-        )
-      end
+      return if new_origin.nil?
 
-      @allowed_origins = [new_origin]
+      warn(
+        "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future. "\
+        "Please use `WebAuthn.allowed_origins` instead "\
+        "that also allows configuring multiple origins per Relying Party"
+      )
+
+      @allowed_origins ||= Array(new_origin) # rubocop:disable Naming/MemoizedInstanceVariableName
     end
   end
 end

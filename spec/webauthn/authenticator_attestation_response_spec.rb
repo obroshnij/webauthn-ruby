@@ -305,15 +305,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(challenge, origin)).to be_truthy
+      expect(attestation_response.verify(challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(challenge, origin)).to eq(true)
+      expect(attestation_response.valid?(challenge, WebAuthn.configuration.allowed_origins)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(challenge, origin)
+      attestation_response.valid?(challenge, WebAuthn.configuration.allowed_origins)
 
       expect(attestation_response.attestation_type).to eq("AttCA")
       expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
@@ -572,7 +572,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "matches the default one" do
@@ -617,11 +617,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:token_binding) { { status: "supported" } }
 
       it "verifies" do
-        expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+        expect(attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
       end
 
       it "is valid" do
-        expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+        expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
       end
     end
 
@@ -630,12 +630,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "doesn't verify" do
         expect {
-          attestation_response.verify(original_challenge, origin)
+          attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
         }.to raise_exception(WebAuthn::TokenBindingVerificationError)
       end
 
       it "isn't valid" do
-        expect(attestation_response.valid?(original_challenge, origin)).to be_falsy
+        expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
       end
     end
   end
@@ -647,17 +647,17 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       context "when silent_authentication is not set" do
         it "doesn't verify if user presence is not set" do
           expect {
-            attestation_response.verify(original_challenge, origin)
+            attestation_response.verify(original_challenge, [origin])
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
 
         it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
         end
 
         it "doesn't verify if user presence is required" do
           expect {
-            attestation_response.verify(original_challenge, origin, user_presence: true)
+            attestation_response.verify(original_challenge, [origin], user_presence: true)
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
       end
@@ -674,17 +674,17 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
         it "doesn't verify if user presence is not set" do
           expect {
-            attestation_response.verify(original_challenge, origin)
+            attestation_response.verify(original_challenge, [origin])
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
 
         it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
         end
 
         it "doesn't verify if user presence is required" do
           expect {
-            attestation_response.verify(original_challenge, origin, user_presence: true)
+            attestation_response.verify(original_challenge, [origin], user_presence: true)
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
       end
@@ -700,16 +700,16 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
 
         it "verifies if user presence is not set" do
-          expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+          expect(attestation_response.verify(original_challenge, [origin])).to be_truthy
         end
 
         it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
         end
 
         it "doesn't verify if user presence is required" do
           expect {
-            attestation_response.verify(original_challenge, origin, user_presence: true)
+            attestation_response.verify(original_challenge, [origin], user_presence: true)
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
       end
@@ -726,7 +726,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "doesn't verify if user verification is required" do
         expect {
-          attestation_response.verify(original_challenge, origin, user_verification: true)
+          attestation_response.verify(
+            original_challenge,
+            WebAuthn.configuration.allowed_origins,
+            user_verification: true
+          )
         }.to raise_exception(WebAuthn::UserVerifiedVerificationError)
       end
     end
@@ -742,7 +746,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "doesn't verify" do
         expect {
-          attestation_response.verify(original_challenge, origin)
+          attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
         }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
       end
     end
@@ -754,7 +758,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "doesn't verify" do
         expect {
-          attestation_response.verify(original_challenge, origin)
+          attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
         }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
       end
     end
